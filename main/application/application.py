@@ -109,17 +109,32 @@ class App(tkinter.Tk):
             self.select_line(down)
 
     def _list_remove(self):
+        """
+        Remove the selected item
+        * if not selected, nothing happens
+        * if possible the selection cursor does not move
+        * if you are removing the latest element the selection moves back one
+        * if you remove the last element, nothing is selected
+        """
 
         index = self.get_selected_index()
-        if index is not None:
-            # remove element from selected position
-            self.filenames.pop(index)
 
-            self.update_listbox()
+        # ensure something is selected
+        if index is None:
+            return
 
-            # attach re-selection
-            if len(self.filenames) > 0:
-                self.select_line(index - 1)
+        # remove element
+        self.filenames.pop(index)
+        self.update_listbox()
+
+        # work out where the cursor should be
+        max_pos = len(self.filenames)
+
+        if index < max_pos:
+            self.select_line(index)
+        elif max_pos != 0:
+            self.select_line(index - 1)
+
 
     def select_line(self, index):
         if index < len(self.filenames):
