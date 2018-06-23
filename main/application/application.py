@@ -54,13 +54,13 @@ class App(tkinter.Tk):
         button_merge.grid(column=1, row=2)
 
     def insert_temp_list(self):
+        """ Temp list for debugging """
         self.filenames = ['cat.pdf', 'dog.pdf', 'meow.pdf']
         self.update_listbox()
 
 
     def _get_files(self):
         """ Prompt the user for the files that they wish to merge. All files are added to a list """
-
         # a list of filetype tuples (filename, extension)
         filetypes = [("pdf files", "*.pdf")]
 
@@ -87,6 +87,7 @@ class App(tkinter.Tk):
             self.list_files.insert(tkinter.END, os.path.basename(filename))
 
     def _list_move_up(self):
+        """ Move the selected element up if possible """
         index = self.get_selected_index()
         if (index is not None) and (index != 0):
             up = index - 1
@@ -98,6 +99,7 @@ class App(tkinter.Tk):
             self.select_line(up)
 
     def _list_move_down(self):
+        """ Move the selected element down if possible """
         index = self.get_selected_index()
         if (index is not None) and (index != len(self.filenames) - 1):
             down = index + 1
@@ -135,14 +137,17 @@ class App(tkinter.Tk):
         elif max_pos != 0:
             self.select_line(index - 1)
 
-
     def select_line(self, index):
+        """ select a line within self.list_files if the index makes sense """
         if index < len(self.filenames):
             self.list_files.activate(index)
             self.list_files.select_set(index)
 
-
     def get_selected_index(self):
+        """
+        Return the index of the element selected in self.list_files.
+        None if nothing is selected
+        """
         selected = self.list_files.curselection()
         if len(selected) > 0:
             return selected[0]
