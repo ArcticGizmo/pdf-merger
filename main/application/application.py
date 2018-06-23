@@ -17,6 +17,7 @@ class App(tkinter.Tk):
         self.app_dir = app_dir
         self.filenames = []  # tyoe: list[str]
         self.list_files = None  # type: tkinter.Listbox
+        self.output = os.path.join(app_dir, 'output.pdf')  # type: str
 
         # init
         self.initialize()
@@ -32,7 +33,7 @@ class App(tkinter.Tk):
         # TODO should this only show the file name not the whole path?
         self.list_files = tkinter.Listbox(self, width=50)
         self.list_files.grid(column=0, row=0)
-        self.insert_temp_list()
+        # self.insert_temp_list()
         self.update_listbox()
 
         # create file input button
@@ -58,7 +59,6 @@ class App(tkinter.Tk):
         self.filenames = ['cat.pdf', 'dog.pdf', 'meow.pdf']
         self.update_listbox()
 
-
     def _get_files(self):
         """ Prompt the user for the files that they wish to merge. All files are added to a list """
         # a list of filetype tuples (filename, extension)
@@ -75,7 +75,6 @@ class App(tkinter.Tk):
         for filename in filenames:
             self.filenames.append(filename)
         self.update_listbox()
-
 
     def update_listbox(self):
         """ Redraws the listbox to show self.filenames """
@@ -160,16 +159,26 @@ class App(tkinter.Tk):
             print('No files have been selected. Nothing that can be done')
             return
 
-        print('going to merge the following')
-        print(self.filenames)
-
-
-        # prompt the user for an output file name
-        #TODO add a pop up for the output file name through a pop up file window
-        output = os.path.join(self.app_dir, 'output.pdf')
+        # prompt the user for the output file name
+        self.set_output_file_name()
 
         # Run merge for all the files
-        merge_all(self.filenames, output)
+        merge_all(self.filenames, self.output)
 
+
+    def set_output_file_name(self):
+        """ Prompts the user to select the output file name """
+        # a list of filetype tuples (filename, extension)
+        filetypes = [("pdf files", "*.pdf")]
+
+        # Read in the user desired file location
+        output = filedialog.asksaveasfilename(
+            initialdir=self.app_dir,
+            title="Output merged",
+            filetypes=filetypes
+        )
+
+        # check if the extension is actually pdf (fix shorthanding)
+        self.output = output if output.endswith('pdf') else (output + '.pdf')
 
 
