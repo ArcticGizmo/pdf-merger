@@ -79,15 +79,12 @@ class App(tkinter.Tk):
 
     def update_listbox(self):
         """ Redraws the listbox to show self.filenames """
-        if len(self.filenames) > 0:
-            # delete all items
-            self.list_files.delete(0, tkinter.END)
+        # delete all elements from list
+        self.list_files.delete(0, tkinter.END)
 
-            # add list items. last name only
-            for filename in self.filenames:
-                self.list_files.insert(tkinter.END, os.path.basename(filename))
-        else:
-            self.list_files.insert(0, 'None')
+        # add list items. last name only
+        for filename in self.filenames:
+            self.list_files.insert(tkinter.END, os.path.basename(filename))
 
     def _list_move_up(self):
         index = self.get_selected_index()
@@ -98,8 +95,7 @@ class App(tkinter.Tk):
             self.update_listbox()
 
             # set the cursor position within the list
-            self.list_files.activate(up)
-            self.list_files.select_set(up)
+            self.select_line(up)
 
     def _list_move_down(self):
         index = self.get_selected_index()
@@ -110,14 +106,26 @@ class App(tkinter.Tk):
             self.update_listbox()
 
             # set the cursor position within the list
-            self.list_files.activate(down)
-            self.list_files.select_set(down)
+            self.select_line(down)
 
     def _list_remove(self):
+
         index = self.get_selected_index()
         if index is not None:
+            # remove element from selected position
             self.filenames.pop(index)
+
             self.update_listbox()
+
+            # attach re-selection
+            if len(self.filenames) > 0:
+                self.select_line(index - 1)
+
+    def select_line(self, index):
+        if index < len(self.filenames):
+            self.list_files.activate(index)
+            self.list_files.select_set(index)
+
 
     def get_selected_index(self):
         selected = self.list_files.curselection()
