@@ -1,11 +1,14 @@
 import os
 import tkinter
-from tkinter import filedialog
+from tkinter import Frame, Label, filedialog, Listbox
 from application.pdf.pdf_helper import merge_all
 
 def list_swap(li, a, b):
     """ Swap index a and b within list li"""
     li[a], li[b] = li[b], li[a]
+
+WIDTH = 250
+HEIGHT = 250
 
 
 class App(tkinter.Tk):
@@ -16,7 +19,7 @@ class App(tkinter.Tk):
         # var declaration
         self.app_dir = app_dir
         self.filenames = []  # tyoe: list[str]
-        self.list_files = None  # type: tkinter.Listbox
+        self.file_list = None  # type: tkinter.Listbox
         self.output = os.path.join(app_dir, 'output.pdf')  # type: str
 
         # init
@@ -24,35 +27,44 @@ class App(tkinter.Tk):
 
     def initialize(self):
         # set the app size
-        self.geometry("500x500")
+        self.geometry("{}x{}".format(WIDTH, HEIGHT))
 
-        # set up app grid spacing
-        self.grid()
+        # create frames
+        left_frame = Frame(self, bg='cyan', width=WIDTH//2, height=HEIGHT, pady=3)
+        right_frame = Frame(self, bg='lavender', width=WIDTH//2, height=HEIGHT, pady=3)
 
-        # create filename list
-        # TODO should this only show the file name not the whole path?
-        self.list_files = tkinter.Listbox(self, width=50)
-        self.list_files.grid(column=0, row=0)
-        # self.insert_temp_list()
+        # layout all main containers with some scale
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # stick frames to positions (side by side)
+        left_frame.grid(row=0, column=0, sticky='nsew')
+        right_frame.grid(row=0, column=1, sticky='nsew')
+
+        # create widgets
+        label_pdf = Label(left_frame, text='PDFs')
+        self.file_list = Listbox(left_frame)
+
+        label_cmds = Label(right_frame, text='Commands')
+        button_import = tkinter.Button(right_frame, text='Import', command=self._get_files)
+        button_up = tkinter.Button(right_frame, text='up', command=self._list_move_up)
+        button_down = tkinter.Button(right_frame, text='Down', command=self._list_move_down)
+        button_remove = tkinter.Button(right_frame, text='remove', command=self._list_remove)
+        button_merge = tkinter.Button(right_frame, text='Merge!', command=self._merge)
+
+        # layout widgets
+        label_pdf.grid(row=0, column=0)
+        self.file_list.grid(row=1, column=0)
+
+        label_cmds.grid(row=0, column=1)
+        button_import.grid(row=1, column=1)
+        button_up.grid(row=2, column=1)
+        button_down.grid(row=3, column=1)
+        button_remove.grid(row=4, column=1)
+        button_merge.grid(row=5, column=1)
+
         self.update_listbox()
-
-        # create file input button
-        button_import = tkinter.Button(self, text='Import', command=self._get_files)
-        button_import.grid(column=1, row=0)
-
-        # create file movement button
-        button_up = tkinter.Button(self, text='up', command=self._list_move_up)
-        button_up.grid(column=1, row=1)
-        button_down = tkinter.Button(self, text='Down', command=self._list_move_down)
-        button_down.grid(column=2, row=1)
-
-        # create remove button
-        button_remove = tkinter.Button(self, text='remove', command=self._list_remove)
-        button_remove.grid(column=3, row=1)
-
-        # create merge button
-        button_merge = tkinter.Button(self, text='Merge!', command=self._merge)
-        button_merge.grid(column=1, row=2)
 
     def insert_temp_list(self):
         """ Temp list for debugging """
@@ -79,11 +91,11 @@ class App(tkinter.Tk):
     def update_listbox(self):
         """ Redraws the listbox to show self.filenames """
         # delete all elements from list
-        self.list_files.delete(0, tkinter.END)
+        self.file_list.delete(0, tkinter.END)
 
         # add list items. last name only
         for filename in self.filenames:
-            self.list_files.insert(tkinter.END, os.path.basename(filename))
+            self.file_list.insert(tkinter.END, os.path.basename(filename))
 
     def _list_move_up(self):
         """ Move the selected element up if possible """
@@ -137,17 +149,17 @@ class App(tkinter.Tk):
             self.select_line(index - 1)
 
     def select_line(self, index):
-        """ select a line within self.list_files if the index makes sense """
+        """ select a line within self.file_list if the index makes sense """
         if index < len(self.filenames):
-            self.list_files.activate(index)
-            self.list_files.select_set(index)
+            self.file_list.activate(index)
+            self.file_list.select_set(index)
 
     def get_selected_index(self):
         """
-        Return the index of the element selected in self.list_files.
+        Return the index of the element selected in self.file_list.
         None if nothing is selected
         """
-        selected = self.list_files.curselection()
+        selected = self.file_list.curselection()
         if len(selected) > 0:
             return selected[0]
         return None
